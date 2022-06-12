@@ -16,7 +16,10 @@ ssh -i $jenkins_key   ubuntu@$Jenkins_server "curl http://localhost:8080/jnlpJar
 
 echo 'installing plugins'
 ssh -i $jenkins_key  ubuntu@$Jenkins_server "echo 'installing plugins'; java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket install-plugin Git GitHub github-branch-source  pipeline-model-extensions build-monitor-plugin pipeline-build-step docker-workflow Swarm -deploy"
-
+echo 'submit and create jenkins job'
+scp -i $jenkins_key myJob.xml ubuntu@$Jenkins_server:~
+ssh -i $jenkins_key  ubuntu@$Jenkins_server "java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket create-job newmyjob < myJob.xml"
+#ssh -i $jenkins_key  ubuntu@$Jenkins_server "printf '%q\n'  "$job_content" > myJob.xml"
 
 
 # run on node:
