@@ -9,9 +9,21 @@ module "ssh_keys" {
 }
 
 
+module "vpn" {
+  source    = "./modules/vpn"
+  vpc_id = module.networking.vpcid
+  subnet_id = module.networking.public-subnet-id
+  server_public_key = module.ssh_keys.servers_key[2]
+  servers_private_key = module.ssh_keys.servers_private_key[2]
+  availability_zone = var.availability_zone[0]
+}
+
+
+
 module "consul" {
   source    = "./modules/consul"
   vpc_id = module.networking.vpcid
+  vpn_sg = module.vpn.vpn_sg
   subnet_id = module.networking.private-subnet-id
   server_public_key = module.ssh_keys.servers_key[0]
   servers_private_key = module.ssh_keys.servers_private_key[0]
@@ -19,10 +31,12 @@ module "consul" {
 }
 
 
-#module "jenkins" {
-#  source    = "./modules/jenkins"
-#  vpc_id = module.networking.vpcid
-#  public_key_name = var.jenkins_key_pair
-#  private_key_name = var.jenkins_private_key
-#  subnet_id = module.networking.private-subnet-id[0]
-#}
+module "jenkins" {
+  source    = "./modules/jenkins"
+  vpc_id = module.networking.vpcid
+  vpn_sg = module.vpn.vpn_sg
+  server_public_key = module.ssh_keys.servers_key[1]
+  servers_private_key = module.ssh_keys.servers_private_key[1]
+  subnet_id = module.networking.private-subnet-id
+  availability_zone = var.availability_zone
+}

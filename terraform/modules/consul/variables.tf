@@ -8,6 +8,9 @@ variable "servers_private_key" {}
 
 variable "subnet_id" {}
 
+variable "vpn_sg" {}
+
+
 
 variable "region" {
   description = "AWS region for VMs"

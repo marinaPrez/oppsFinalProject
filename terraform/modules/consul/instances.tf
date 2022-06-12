@@ -10,9 +10,9 @@ resource "aws_instance" "consul_server" {
   #subnet_id                            = aws_subnet.public.id
   subnet_id                             = element(var.subnet_id, count.index)
   iam_instance_profile                  = aws_iam_instance_profile.consul-join.name
-  associate_public_ip_address           = true
-  vpc_security_group_ids 		= [aws_security_group.opsschool_consul.id]
-
+  #associate_public_ip_address           = false
+  vpc_security_group_ids 		= [aws_security_group.opsschool_consul.id, var.vpn_sg]
+  user_data = file("modules/consul/scripts/consul-server.tpl")
 
 #  provisioner "file" {
 #    source      = "scripts/consul-server.sh"
@@ -61,16 +61,20 @@ resource "aws_instance" "consul_agent" {
   key_name                          = var.server_public_key
   #subnet_id                        = aws_subnet.public.id
   subnet_id                         = element(var.subnet_id, count.index)
-  associate_public_ip_address       = true
+  associate_public_ip_address       = false
   iam_instance_profile              = aws_iam_instance_profile.consul-join.name
-  vpc_security_group_ids            = [aws_security_group.opsschool_consul.id]
-  user_data       = <<EOF
+  vpc_security_group_ids            = [aws_security_group.opsschool_consul.id, var.vpn_sg]
+  user_data = file("modules/consul/scripts/consul-agent.tpl")
+  
+
+
+#user_data       = <<EOF
 #!bin/bash
-sudo apt-get update
-sudo apt-get install nginx -y
-echo "OPSSCHOOL RULES ! " | sudo tee /usr/share/nginx/html/index.html
-sudo systemctl start nginx
-EOF
+#sudo apt-get update
+#sudo apt-get install nginx -y
+#echo "OPSSCHOOL RULES ! " | sudo tee /usr/share/nginx/html/index.html
+#sudo systemctl start nginx
+#EOF
  
 #  provisioner "file" {
 #    source      = "scripts/consul-agent.sh"
@@ -106,11 +110,4 @@ EOF
 
 }
 
-#output "servers" {
-#  value = ["${aws_instance.consul_server.*.public_ip}"]
-#}
 
-#output "agent" {
-#  value = aws_instance.consul_agent.public_ip
-#}
- 

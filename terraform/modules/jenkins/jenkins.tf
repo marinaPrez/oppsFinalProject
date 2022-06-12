@@ -57,57 +57,28 @@ resource "aws_security_group" "jenkins" {
 
 
 
-
 ###########################################
-# Create Jenkins servers 
+# Create Jenkins server 
 ##########################################
 resource "aws_instance" "jenkins_server" {
   ami = "ami-0cb4e786f15603b0d"
+  count = 1
   instance_type = "t2.micro"
  # key_name = "${aws_key_pair.jenkins_ec2_key.key_name}"
-  key_name = var.public_key_name
-  subnet_id                = var.subnet_id
+  key_name = var.server_public_key
+  subnet_id                = element(var.subnet_id, count.index)
   tags =        {
                   Name = "Jenkins Server"
                   role = "Jenkins Master"
                   port = "8080"
                 }
-  #associate_public_ip_address = true
-  #security_groups = [ aws_security_group.jenkins.name ]
-  vpc_security_group_ids = [aws_security_group.jenkins.id]
+  associate_public_ip_address       = false
+  vpc_security_group_ids = [aws_security_group.jenkins.id,  var.vpn_sg]
+  user_data = file("modules/jenkins/scripts/jenkins_server.tpl") 
 
 
 
- #provisioner "file" {
- #   source      = "consul/scripts/consul-agent.sh"
- #   destination = "/home/ubuntu/consul-agent.sh"
- #   connection {
- #     host        = aws_instance.jenkins_server.private_ip
- #     user        = "ubuntu"
- #     private_key = var.private_key_name
- #   }
- # }
-
-
- connection {
-    host = aws_instance.jenkins_server.private_ip
-    user = "ubuntu"
-    private_key = var.private_key_name
-  }
-
-
- provisioner "file" {
-    source      = "consul/scripts/consul-agent.sh"
-    destination = "/home/ubuntu/consul-agent.sh"
-   # connection {
-   #   host        = aws_instance.jenkins_server.private_ip
-   #   user        = "ubuntu"
-   #   private_key = var.private_key_name
-   # }
-  }
-
-
-  provisioner "remote-exec" {
+  /* provisioner "remote-exec" {
     inline = [
       "sudo apt-get update -y",
       "sudo apt install docker.io  -y",
@@ -125,26 +96,27 @@ resource "aws_instance" "jenkins_server" {
     inline = [
       "sudo docker run -d --restart=always -p 8080:8080 -p 50000:50000 -v ${local.jenkins_home_mount} -v ${local.docker_sock_mount} --env ${local.java_opts} jenkins/jenkins"
     ]
-  }
-
+  } */
 
 }
 
 
 resource "aws_instance" "jenkins_node" {
   ami = "ami-0cb4e786f15603b0d"
+  count = 1
   instance_type = "t2.micro"
-  key_name = var.public_key_name
-  subnet_id                = var.subnet_id
+  key_name = var.server_public_key
+  subnet_id                = element(var.subnet_id, count.index)
   tags = {
          Name = "Jenkins Node"
          role = "Jemkins Slave"
          port = "8080"
          }  
-  #associate_public_ip_address = true
-  vpc_security_group_ids = [aws_security_group.jenkins.id]
+  associate_public_ip_address       = false
+  vpc_security_group_ids = [aws_security_group.jenkins.id, var.vpn_sg]
+  user_data = file("modules/jenkins/scripts/jenkins-agent.tpl")
 
-  provisioner "file" {
+  /* provisioner "file" {
     source      = "consul/scripts/consul-agent.sh"
     destination = "/home/ubuntu/consul-agent.sh"
     connection {
@@ -152,16 +124,16 @@ resource "aws_instance" "jenkins_node" {
       user        = "ubuntu"
       private_key = var.private_key_name
     }
-  }
+  } */
 
 
- connection {
+ /* connection {
     host = aws_instance.jenkins_node.private_ip
     user = "ubuntu"
     private_key = var.private_key_name
-  }
+  } */
 
-  provisioner "remote-exec" {
+  /* provisioner "remote-exec" {
 
     inline = [
       "sudo apt-get update -y",
@@ -175,14 +147,8 @@ resource "aws_instance" "jenkins_node" {
       "chmod +x /home/ubuntu/consul-agent.sh",
       "sudo /home/ubuntu/consul-agent.sh"
     ]
-  }
+  } */
 }
 
 
-output "Jenkins_server" {
-  value = aws_instance.jenkins_server.private_ip
-}
 
-output "jenkins_agent" {
-  value = aws_instance.jenkins_node.private_ip
-}

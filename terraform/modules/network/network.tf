@@ -124,7 +124,7 @@ resource "aws_route_table_association" "private" {
 # create ssh keys
 #################################
 
-resource "tls_private_key" "oppschool_key" {
+/* resource "tls_private_key" "oppschool_key" {
   algorithm = "RSA"
   rsa_bits  = 2048
 }
@@ -136,7 +136,7 @@ resource "aws_key_pair" "oppschool_key" {
   resource "local_file" "server_key" {
   sensitive_content  = tls_private_key.oppschool_key.private_key_pem
   filename           = "oppschool_key.pem"
-}
+} */
 
 #######################################
 #create instance profile
