@@ -1,8 +1,7 @@
 #!/bin/bash
 
-
-Jenkins_server="10.0.6.110"
-jenkins_agent="10.0.6.72"
+Jenkins_server="10.0.6.160"
+jenkins_agent="10.0.6.250"
 jenkins_key="terraform/keys/jenkins_key.pem"
 
 
@@ -16,10 +15,10 @@ ssh -i $jenkins_key   ubuntu@$Jenkins_server "curl http://localhost:8080/jnlpJar
 
 echo 'installing plugins'
 ssh -i $jenkins_key  ubuntu@$Jenkins_server "echo 'installing plugins'; java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket install-plugin Git GitHub github-branch-source  pipeline-model-extensions build-monitor-plugin pipeline-build-step docker-workflow Swarm -deploy"
+
 echo 'submit and create jenkins job'
 scp -i $jenkins_key myJob.xml ubuntu@$Jenkins_server:~
 ssh -i $jenkins_key  ubuntu@$Jenkins_server "java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket create-job newmyjob < myJob.xml"
-#ssh -i $jenkins_key  ubuntu@$Jenkins_server "printf '%q\n'  "$job_content" > myJob.xml"
 
 
 # run on node:
@@ -29,8 +28,9 @@ echo "download node client"
 ssh -i $jenkins_key  ubuntu@$jenkins_agent "curl http://$Jenkins_server:8080/swarm/swarm-client.jar -o swarm-client.jar"
 
 echo "install cubectl"
-ssh -i $jenkins_key  ubuntu@$jenkins_agent "sudo snap install kubectl --classic"
-ssh -i $jenkins_key  ubuntu@$jenkins_agent "aws eks --region=us-west-2 update-kubeconfig --name mid-project-eks-cluster"
+ssh -i $jenkins_key  ubuntu@$jenkins_agent "sudo snap install kubectl --classic; mkdir /home/ubuntu/.kube/"
+scp -i $jenkins_key  /Users/marinapr/.kube/config ubuntu@$jenkins_agent:~/.kube/config
+#ssh -i $jenkins_key  ubuntu@$jenkins_agent "aws eks --region=us-west-2 update-kubeconfig --name mid-project-eks-cluster"
 
 echo "install aws cli"
 ssh -i $jenkins_key  ubuntu@$jenkins_agent "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o awscliv2.zip "

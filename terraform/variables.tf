@@ -30,37 +30,8 @@ variable "ingressrules" {
 ## ssh key variables
 ####################
 
-/* 
-variable "jenkins_key_pair" {
-  description = "jenkins key pair"
-  type = string
-  default = "jenkins_key"
-}
-
-
-variable "jenkins_private_key" {
-  description = "Public jenkins key"
-  type = string
-  default = "keys/jenkins_key.pub"
-} */
-
-
-
-/* variable "project_key_path" {
-  description = "Path to private project key"
-  type = string
-  default = "/keys/project.pem"
-} */
-
-/* variable "project_public_path" {
-  description = "Path to public project key"
-  type = string
-  default = "/keys/project.pub"
-} */
-
 variable "key_pair_names" {
   description = "EC2 Key pair names, "
   type = list(string)
-  #default = ["project"]
-  default = ["consul_key", "jenkins_key", "vpn_key"]
+  default = ["consul_key", "jenkins_key", "vpn_key","monitor_key"]
 }

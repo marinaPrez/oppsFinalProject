@@ -40,3 +40,17 @@ module "jenkins" {
   subnet_id = module.networking.private-subnet-id
   availability_zone = var.availability_zone
 }
+
+
+module "k8s" {
+  source    = "./modules/k8s"
+  vpc_id = module.networking.vpcid
+  #vpn_sg = module.vpn.vpn_sg
+  subnet_ids = module.networking.private-subnet-id
+  role_arn  = module.jenkins.jenkins_role_arn
+  role_name = module.jenkins.jenkins_role_name
+  #server_public_key = module.ssh_keys.servers_key[0]
+  #servers_private_key = module.ssh_keys.servers_private_key[0]
+  #availability_zone = var.availability_zone
+}
+

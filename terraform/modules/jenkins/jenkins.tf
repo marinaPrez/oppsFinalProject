@@ -115,6 +115,7 @@ resource "aws_instance" "jenkins_node" {
   associate_public_ip_address       = false
   vpc_security_group_ids = [aws_security_group.jenkins.id, var.vpn_sg]
   user_data = file("modules/jenkins/scripts/jenkins-agent.tpl")
+  iam_instance_profile = aws_iam_instance_profile.jenkins-role.name
 
   /* provisioner "file" {
     source      = "consul/scripts/consul-agent.sh"

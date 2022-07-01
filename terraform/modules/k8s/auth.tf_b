@@ -1,0 +1,41 @@
+module "eks_auth" {
+  source = "../../"
+  eks    = module.eks
+
+  map_roles = [
+    {
+      rolearn  = "arn:aws:iam::66666666666:role/role1"
+      username = "role1"
+      groups   = ["system:masters"]
+    },
+  ]
+}
+
+
+
+
+
+
+
+
+/* locals {
+  map_roles = [for role in var.kube_additional_role_names : {
+    rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/Role_${role}${var.application_task}${var.application_name}_join"
+    username = "Role_${role}${var.application_task}${var.application_name}_join"
+    groups   = ["system:masters"]
+
+  }]
+}
+
+module "eks_auth" {
+  source                   = "aidanmelen/eks-auth/aws"
+  version                  = "1.0.0"
+  eks                      = module.eks
+  wait_for_cluster_timeout = 300
+  map_roles                = local.map_roles
+
+  depends_on = [module.eks]
+}
+
+
+# https://registry.terraform.io/modules/aidanmelen/eks-auth/aws/latest/examples/basic */
