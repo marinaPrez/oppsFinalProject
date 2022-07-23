@@ -1,6 +1,5 @@
-module "networking" {
-  source    = "./modules/network"
-}
+
+
 
 
 module "ssh_keys" {
@@ -30,6 +29,13 @@ module "consul" {
   availability_zone = var.availability_zone
 }
 
+module "networking" {
+  source    = "./modules/network"
+  consul_target_group_arn = module.consul.consul-server-target-group-arn
+ } 
+
+
+
 
 module "jenkins" {
   source    = "./modules/jenkins"
@@ -40,3 +46,25 @@ module "jenkins" {
   subnet_id = module.networking.private-subnet-id
   availability_zone = var.availability_zone
 }
+
+
+module "k8s" {
+  source    = "./modules/k8s"
+  vpc_id = module.networking.vpcid
+  #vpn_sg = module.vpn.vpn_sg
+  subnet_ids = module.networking.private-subnet-id
+  role_arn  = module.jenkins.jenkins_role_arn
+  role_name = module.jenkins.jenkins_role_name
+  #server_public_key = module.ssh_keys.servers_key[0]
+  #servers_private_key = module.ssh_keys.servers_private_key[0]
+  #availability_zone = var.availability_zone
+}
+
+ module "elastic" {
+  source    = "./modules/elastic"
+  vpc_id = module.networking.vpcid
+  subnet_id = module.networking.private-subnet-id
+  server_public_key = module.ssh_keys.servers_key[2]
+  servers_private_key = module.ssh_keys.servers_private_key[4]
+  availability_zone = var.availability_zone[0] 
+ }

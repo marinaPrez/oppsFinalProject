@@ -17,3 +17,6 @@ variable "ingressrules" {
   type    = list(number)
   default = [80, 443, 22]
 }
+
+variable "consul_target_group_arn" {}
+/* variable "jenkins_server_target_group_arn" {} */

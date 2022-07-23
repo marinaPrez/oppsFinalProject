@@ -4,13 +4,17 @@
 
 resource "aws_instance" "vpn" {
   ami                   = "ami-0d10bccf2f1a6d60b"
-  count                 = 1
+  /* count                 = 1 */
   instance_type         = "t2.micro"
   key_name              = var.server_public_key
-  subnet_id             = element(var.subnet_id, count.index)
+  subnet_id             = var.subnet_id[0]
   vpc_security_group_ids            = [aws_security_group.vpn_sg.id]
+  user_data = <<-EOF
+              admin_user=${var.server_username}
+              admin_pw=${var.server_password}
+              EOF
   tags = {
-    Name = "vpn server"
+    Name = "Vpn Server"
   }
 }
 

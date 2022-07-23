@@ -147,4 +147,132 @@ resource "aws_iam_instance_profile" "web_profile" {
   role = "opsScool_role"
 }
 
+#####################################
+## Application Load Balancer - alb ##
+#####################################
 
+resource "aws_alb" "alb1" {
+  name = "alb1"
+  internal = false
+  load_balancer_type = "application"
+  security_groups = [aws_security_group.alb1_sg.id]
+  subnets = [for subnet in aws_subnet.public.*.id : subnet]
+  tags = {
+    Name = "application load balancer"
+  }
+}
+ 
+/* resource "aws_alb_listener" "consul" {
+  depends_on = [time_sleep.wait_for_certificate_verification] 
+  load_balancer_arn = aws_alb.alb1.arn
+  certificate_arn = aws_acm_certificate.cert.arn
+  port              = "8500"
+  protocol          = "HTTPS"
+  default_action {
+    type             = "forward"
+    target_group_arn = var.consul_target_group_arn
+  }
+}  */
+
+###########################
+ ## APB security group
+###########################
+
+resource "aws_security_group" "alb1_sg" {
+  name ="alb1-security-group"
+  vpc_id = aws_vpc.oppschool_vpc.id
+  ingress {
+    from_port = 8500
+    to_port =  8500
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow consul UI access"
+  }
+  ingress {
+    from_port = 443
+    to_port =  443
+    protocol = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow jenkins UI secure access"
+  }
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name = "app balancer security group"
+  }
+}
+
+resource "aws_route53_record" "jenkins_record" {
+  zone_id = data.aws_route53_zone.primary_domain.zone_id
+  name    = "jenkins"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.alb1.dns_name]
+}
+
+resource "aws_route53_record" "consul_record" {
+  zone_id = data.aws_route53_zone.primary_domain.zone_id
+  name    = "consul"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.alb1.dns_name]
+}  
+
+ ## Create Certificate 
+resource "aws_acm_certificate" "cert" {
+  domain_name       = "ops-marina.online"
+  #subject_alternative_names = ["*.ops-domain"]
+  validation_method = "DNS"
+  tags = {
+    Name = "certificate-opps"
+  }
+}
+
+/* resource "aws_route53_zone" "primary_domain" {
+  name = "ops-marina.online"
+  lifecycle {
+    prevent_destroy = false
+  }
+  tags = {
+    Name = "hostedzone-ops"
+  }
+} */
+
+data "aws_route53_zone" "primary_domain" {
+  name         = "ops-marina.online"
+  private_zone = false
+}
+
+resource "aws_route53_record" "ops_site" {
+  for_each = {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  }
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.primary_domain.zone_id
+}
+
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.ops_site : record.fqdn]
+  timeouts {
+    create = "60m"
+  }
+} 
+
+/* resource "time_sleep" "wait_for_certificate_verification" {
+  depends_on = [aws_acm_certificate_validation.cert]
+  create_duration = "60s"
+}  */
