@@ -41,7 +41,7 @@ resource "aws_instance" "consul_server" {
 
 
   tags = {
-    Name = "opsschool-server_${count.index}"
+    Name = "Consul-Server_${count.index}"
     consul_server = "true"
     role = "consul server"
     environment = "production"
@@ -57,51 +57,15 @@ resource "aws_instance" "consul_agent" {
   ami                               = lookup(var.ami, var.region)
   count                               = 1
   instance_type                     = "t2.micro"
-  #key_name                         = aws_key_pair.opsschool_consul_key.key_name
   key_name                          = var.server_public_key
-  #subnet_id                        = aws_subnet.public.id
   subnet_id                         = element(var.subnet_id, count.index)
   associate_public_ip_address       = false
   iam_instance_profile              = aws_iam_instance_profile.consul-join.name
   vpc_security_group_ids            = [aws_security_group.opsschool_consul.id, var.vpn_sg]
   user_data = file("modules/consul/scripts/consul-agent.tpl")
   
-
-
-#user_data       = <<EOF
-#!bin/bash
-#sudo apt-get update
-#sudo apt-get install nginx -y
-#echo "OPSSCHOOL RULES ! " | sudo tee /usr/share/nginx/html/index.html
-#sudo systemctl start nginx
-#EOF
- 
-#  provisioner "file" {
-#    source      = "scripts/consul-agent.sh"
-#    destination = "/home/ubuntu/consul-agent.sh"
-#    connection {   
-#      host        = self.public_ip
-#      user        = "ubuntu"
-#      private_key = var.servers_private_key
-#    }   
-#  }
-
-
-#   provisioner "remote-exec" {
-#    inline = [
-#      "chmod +x /home/ubuntu/consul-agent.sh",
-#      "sudo /home/ubuntu/consul-agent.sh &>> mylog.txt",
-#         ]
-#    connection {
-#      host        = self.public_ip
-#      user        = "ubuntu"
-#      private_key = var.servers_private_key
-#    }
-#  }
-
-
   tags = {
-    Name = "opsschool-agent"
+    Name = "Consul-agent"
     role = "ngnx"
     environment = "production"
     port = "80"
@@ -111,3 +75,25 @@ resource "aws_instance" "consul_agent" {
 }
 
 
+resource "aws_alb_target_group" "consul_server" {
+  name     = "consul-server-target-group"
+  port     = 8500
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  health_check {
+    path = "/ui/ops-project/services"
+    port = 8500
+    healthy_threshold = 3
+    unhealthy_threshold = 2
+    timeout = 2
+    interval = 5
+    matcher = "200"  # has to be HTTP 200 or fails
+  }
+}
+
+resource "aws_alb_target_group_attachment" "consul_server" {
+  count = 3
+  target_group_arn = aws_alb_target_group.consul_server.arn
+  target_id        = aws_instance.consul_server.*.id[count.index]
+  port             = 8500
+}
