@@ -80,7 +80,7 @@ resource "aws_alb_target_group" "consul_server" {
   port     = 8500
   protocol = "HTTP"
   vpc_id   = var.vpc_id
-  health_check {
+  /* health_check {
     path = "/ui/ops-project/services"
     port = 8500
     healthy_threshold = 3
@@ -88,7 +88,7 @@ resource "aws_alb_target_group" "consul_server" {
     timeout = 2
     interval = 5
     matcher = "200"  # has to be HTTP 200 or fails
-  }
+  } */
 }
 
 resource "aws_alb_target_group_attachment" "consul_server" {

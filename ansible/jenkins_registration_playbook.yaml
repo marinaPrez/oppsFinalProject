@@ -17,9 +17,16 @@
       name: python-consul
 
   
-  - name: Register nginx service with the local consul agent
+  # - name: Register service with the local consul agent
+  #   community.general.consul:
+  #     service_name: "{{tags.role}}"
+  #     service_port: "{{tags.port}}"
+  #     tags:
+  #     - production
+
+ - name: Register service with the local consul agent
     community.general.consul:
-      service_name: "{{tags.role}}"
+      service_name: "jenkins"
       service_port: "{{tags.port}}"
       tags:
       - production

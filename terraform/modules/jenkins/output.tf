@@ -13,3 +13,7 @@ output "jenkins_role_arn" {
 output "jenkins_role_name" {
   value = aws_iam_role.jenkins-role.name
 }
+
+output "jenkins-server-target-group-arn" {
+    value = aws_alb_target_group.jenkins-server.arn
+}
