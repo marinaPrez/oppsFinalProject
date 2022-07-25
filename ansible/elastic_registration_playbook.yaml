@@ -1,7 +1,7 @@
 ---
 
 - name: apply consul dynamic registration
-  hosts: _ngnx
+  hosts: _Elastic_Search
   remote_user: ubuntu
 
   tasks:

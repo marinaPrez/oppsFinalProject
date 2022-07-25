@@ -120,24 +120,6 @@ resource "aws_route_table_association" "private" {
 
 
 
-##################################
-# create ssh keys
-#################################
-
-/* resource "tls_private_key" "oppschool_key" {
-  algorithm = "RSA"
-  rsa_bits  = 2048
-}
-resource "aws_key_pair" "oppschool_key" {
-  key_name   = "oppschool_key"
-  public_key = tls_private_key.oppschool_key.public_key_openssh
-}
-# Save generated key pair locally
-  resource "local_file" "server_key" {
-  sensitive_content  = tls_private_key.oppschool_key.private_key_pem
-  filename           = "oppschool_key.pem"
-} */
-
 #######################################
 #create instance profile
 #####################################
@@ -162,17 +144,46 @@ resource "aws_alb" "alb1" {
   }
 }
  
-/* resource "aws_alb_listener" "consul" {
-  depends_on = [time_sleep.wait_for_certificate_verification] 
+resource "aws_alb_listener" "consul" {
+  #depends_on = [time_sleep.wait_for_certificate_verification] 
   load_balancer_arn = aws_alb.alb1.arn
-  certificate_arn = aws_acm_certificate.cert.arn
+   certificate_arn = aws_acm_certificate.cert.arn 
   port              = "8500"
   protocol          = "HTTPS"
   default_action {
     type             = "forward"
     target_group_arn = var.consul_target_group_arn
   }
-}  */
+}  
+
+resource "aws_alb_listener" "jenkins" {
+   # depends_on = [time_sleep.wait_for_certificate_verification]  
+  load_balancer_arn = aws_alb.alb1.arn
+  certificate_arn = aws_acm_certificate.cert.arn 
+  port              = "443"
+  protocol          = "HTTPS"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = var.jenkins_target_group_arn
+  }
+}
+
+/* resource "aws_alb_listener" "kandula" {
+   # depends_on = [time_sleep.wait_for_certificate_verification]  
+  load_balancer_arn = aws_alb.alb1.arn
+  certificate_arn = aws_acm_certificate.cert.arn 
+  port              = "443"
+  protocol          = "HTTPS"
+
+  default_action {
+    type             = "forward"
+    /* target_group_arn = var.jenkins_target_group_arn 
+  }
+}
+ */
+
+
 
 ###########################
  ## APB security group
@@ -222,11 +233,20 @@ resource "aws_route53_record" "consul_record" {
   records = [aws_alb.alb1.dns_name]
 }  
 
+resource "aws_route53_record" "kandula_record" {
+  zone_id = data.aws_route53_zone.primary_domain.zone_id
+  name    = "kandula"
+  type    = "CNAME"
+  ttl     = "300"
+  records = [aws_alb.alb1.dns_name]
+}  
+
+
  ## Create Certificate 
 resource "aws_acm_certificate" "cert" {
-  domain_name       = "ops-marina.online"
+  domain_name       = "*.ops.prezhevalsky.com"
   #subject_alternative_names = ["*.ops-domain"]
-  validation_method = "DNS"
+  validation_method = "EMAIL"
   tags = {
     Name = "certificate-opps"
   }
@@ -243,11 +263,11 @@ resource "aws_acm_certificate" "cert" {
 } */
 
 data "aws_route53_zone" "primary_domain" {
-  name         = "ops-marina.online"
+  name         = "ops.prezhevalsky.com"
   private_zone = false
 }
 
-resource "aws_route53_record" "ops_site" {
+/* resource "aws_route53_record" "ops_site" {
   for_each = {
     for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
@@ -261,16 +281,20 @@ resource "aws_route53_record" "ops_site" {
   ttl             = 60
   type            = each.value.type
   zone_id         = data.aws_route53_zone.primary_domain.zone_id
+} */
+
+resource "aws_acm_certificate_validation" "cert" {
+  certificate_arn = aws_acm_certificate.cert.arn
 }
 
 
-resource "aws_acm_certificate_validation" "cert" {
+/* resource "aws_acm_certificate_validation" "cert" {
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.ops_site : record.fqdn]
   timeouts {
     create = "60m"
   }
-} 
+}  */
 
 /* resource "time_sleep" "wait_for_certificate_verification" {
   depends_on = [aws_acm_certificate_validation.cert]

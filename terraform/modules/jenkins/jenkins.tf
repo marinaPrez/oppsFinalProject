@@ -116,40 +116,28 @@ resource "aws_instance" "jenkins_node" {
   vpc_security_group_ids = [aws_security_group.jenkins.id, var.vpn_sg]
   user_data = file("modules/jenkins/scripts/jenkins-agent.tpl")
   iam_instance_profile = aws_iam_instance_profile.jenkins-role.name
-
-  /* provisioner "file" {
-    source      = "consul/scripts/consul-agent.sh"
-    destination = "/home/ubuntu/consul-agent.sh"
-    connection {
-      host        = aws_instance.jenkins_node.private_ip
-      user        = "ubuntu"
-      private_key = var.private_key_name
-    }
-  } */
-
-
- /* connection {
-    host = aws_instance.jenkins_node.private_ip
-    user = "ubuntu"
-    private_key = var.private_key_name
-  } */
-
-  /* provisioner "remote-exec" {
-
-    inline = [
-      "sudo apt-get update -y",
-      "sudo apt install docker.io git -y",
-      "sudo systemctl start docker",
-      "sudo apt install openjdk-11-jre-headless -y",
-      "sudo systemctl enable docker",
-      "sudo usermod -aG docker ubuntu",
-      "mkdir -p ${local.jenkins_home}",
-      "sudo chown -R 1000:1000 ${local.jenkins_home}",
-      "chmod +x /home/ubuntu/consul-agent.sh",
-      "sudo /home/ubuntu/consul-agent.sh"
-    ]
+}
+ 
+resource "aws_alb_target_group" "jenkins-server" {
+  name     = "jenkins-server-target-group"
+  port     = 8080
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+  /* health_check {
+    path = "/"
+    port = 9000
+    healthy_threshold = 3
+    unhealthy_threshold = 2
+    timeout = 2
+    interval = 5
+    matcher = "200"  # has to be HTTP 200 or fails
   } */
 }
 
-
+resource "aws_alb_target_group_attachment" "jenkins-server" {
+  count = 1
+  target_group_arn = aws_alb_target_group.jenkins-server.arn
+  target_id        = aws_instance.jenkins_server.*.id[count.index]
+  port             = 8080
+}
 

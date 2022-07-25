@@ -32,6 +32,7 @@ module "consul" {
 module "networking" {
   source    = "./modules/network"
   consul_target_group_arn = module.consul.consul-server-target-group-arn
+  jenkins_target_group_arn = module.jenkins.jenkins-server-target-group-arn
  } 
 
 
@@ -64,7 +65,7 @@ module "k8s" {
   source    = "./modules/elastic"
   vpc_id = module.networking.vpcid
   subnet_id = module.networking.private-subnet-id
-  server_public_key = module.ssh_keys.servers_key[2]
+  server_public_key = module.ssh_keys.servers_key[4]
   servers_private_key = module.ssh_keys.servers_private_key[4]
   availability_zone = var.availability_zone[0] 
  }

@@ -19,4 +19,5 @@ variable "ingressrules" {
 }
 
 variable "consul_target_group_arn" {}
-/* variable "jenkins_server_target_group_arn" {} */
+
+variable "jenkins_target_group_arn" {}
