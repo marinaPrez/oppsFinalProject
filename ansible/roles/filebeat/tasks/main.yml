@@ -1,0 +1,42 @@
+---
+# tasks file for roles/filebeat
+- name:  Filebeat Download
+  get_url:
+    url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.11.0-amd64.deb
+    dest: /home/ubuntu/filebeat-oss-7.11.0-amd64.deb
+ 
+
+- name:  Filebeat installation
+  apt:
+    deb: /home/ubuntu/filebeat-oss-7.11.0-amd64.deb
+  become: yes
+
+# - name: Copy Filebeat health check file
+#   copy:
+#     src: filebeat_health_check.sh
+#     dest: /home/ubuntu/filebeat_health_check.sh
+#     mode: a+x
+ 
+
+- name: Get filebeat config file
+  copy:
+    src: ./files/filebeat.yml
+    dest: /etc/filebeat/filebeat.yml
+  become: yes 
+
+# - name: Copy Filebeat K8s config file
+#   copy:
+#     src: ./files/filebeat_k8s_config.yml
+#     dest: /home/ubuntu/filebeat_k8s_config.yml
+#   when: tags['Name'] == 'ansible-server'
+
+# - name: Deploy filebeat on K8s
+#   shell: kubectl apply -f /home/ubuntu/filebeat_k8s_config.yml
+#   ignore_errors: true
+#   when: tags['Name'] == 'ansible-server'
+
+- name: Start filebeat service
+  ansible.builtin.service:
+    name: filebeat
+    state: started
+  become: yes 

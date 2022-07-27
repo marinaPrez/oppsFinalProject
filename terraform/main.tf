@@ -27,6 +27,8 @@ module "consul" {
   server_public_key = module.ssh_keys.servers_key[0]
   servers_private_key = module.ssh_keys.servers_private_key[0]
   availability_zone = var.availability_zone
+  ami = var.ami
+  region = var.region
 }
 
 module "networking" {
@@ -34,8 +36,6 @@ module "networking" {
   consul_target_group_arn = module.consul.consul-server-target-group-arn
   jenkins_target_group_arn = module.jenkins.jenkins-server-target-group-arn
  } 
-
-
 
 
 module "jenkins" {
@@ -46,6 +46,10 @@ module "jenkins" {
   servers_private_key = module.ssh_keys.servers_private_key[1]
   subnet_id = module.networking.private-subnet-id
   availability_zone = var.availability_zone
+  ami = var.ami
+  region = var.region
+  consul_iam_instance_profile = module.consul.aws_iam_instance_profile
+  consul_security_group = module.consul.consul_security_group_id
 }
 
 
@@ -68,4 +72,8 @@ module "k8s" {
   server_public_key = module.ssh_keys.servers_key[4]
   servers_private_key = module.ssh_keys.servers_private_key[4]
   availability_zone = var.availability_zone[0] 
- }
+  ami = var.ami
+  region = var.region
+  consul_iam_instance_profile = module.consul.aws_iam_instance_profile
+  consul_security_group = module.consul.consul_security_group_id
+   }

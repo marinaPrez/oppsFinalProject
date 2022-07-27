@@ -10,29 +10,22 @@ variable "subnet_id" {}
 
 variable "vpn_sg" {}
 
-
-
-variable "region" {
+/* variable "region" {
   description = "AWS region for VMs"
   default = "us-west-2"
-}
+} */
 
+variable "region" {}
+variable "ami" {}
 
-#resource "null_resource" "chmod_400_key" {
-#  provisioner "local-exec" {
-#    command = "chmod 400 ${local_file.private_key.filename}"
-#  }
-#}
-
-
-variable "ami" {
+/* variable "ami" {
   description = "ami (ubuntu 18) to use - based on region"
   default = {
     "us-east-1" = "ami-00ddb0e5626798373"
     "us-east-2" = "ami-0dd9f0e7df0f0a138"
     "us-west-2" = "ami-0ac73f33a1888c64a" 
   }
-}
+} */
 
 variable "vpc_cidr_block" {
   default = "10.0.0.0/16"

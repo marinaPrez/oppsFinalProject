@@ -1,0 +1,11 @@
+---
+- name: configuration for vpn servers 
+  hosts: 
+    _Vpn_Server, 
+  remote_user: ubuntu
+  vars:
+     ansible_ssh_private_key_file: "../terraform/keys/vpn_key.pem"
+  roles:
+  - consul 
+  # - filebeat
+  

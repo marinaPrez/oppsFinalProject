@@ -8,7 +8,8 @@ resource "aws_instance" "elastic" {
   instance_type         = "t3.medium"
   key_name              = var.server_public_key
   subnet_id             = element(var.subnet_id, count.index)
-  vpc_security_group_ids            = [aws_security_group.elastic_sg.id]
+  vpc_security_group_ids            = [aws_security_group.elastic_sg.id,var.consul_security_group]
+  iam_instance_profile              =  var.consul_iam_instance_profile
   user_data = file("./modules/elastic/userdata.sh")
   tags = {
     Name = "Elastic Search Server"

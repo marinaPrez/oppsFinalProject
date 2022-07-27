@@ -14,7 +14,9 @@ resource "aws_instance" "vpn" {
               admin_pw=${var.server_password}
               EOF
   tags = {
-    Name = "Vpn Server"
+    name = "Vpn Server"
+    role = "Vpn_Server"
+    port = "1194"
   }
 }
 

@@ -61,7 +61,8 @@ resource "aws_security_group" "jenkins" {
 # Create Jenkins server 
 ##########################################
 resource "aws_instance" "jenkins_server" {
-  ami = "ami-0cb4e786f15603b0d"
+  /* ami = "ami-0cb4e786f15603b0d" */
+  ami = lookup(var.ami, var.region)
   count = 1
   instance_type = "t2.micro"
  # key_name = "${aws_key_pair.jenkins_ec2_key.key_name}"
@@ -73,9 +74,10 @@ resource "aws_instance" "jenkins_server" {
                   port = "8080"
                 }
   associate_public_ip_address       = false
-  vpc_security_group_ids = [aws_security_group.jenkins.id,  var.vpn_sg]
+  vpc_security_group_ids = [aws_security_group.jenkins.id,  var.vpn_sg, var.consul_security_group]
+  /* iam_instance_profile = [aws_iam_instance_profile.jenkins-role.name, var.consul_iam_instance_profile] */
+  iam_instance_profile =  var.consul_iam_instance_profile
   user_data = file("modules/jenkins/scripts/jenkins_server.tpl") 
-
 
 
   /* provisioner "remote-exec" {
@@ -102,7 +104,8 @@ resource "aws_instance" "jenkins_server" {
 
 
 resource "aws_instance" "jenkins_node" {
-  ami = "ami-0cb4e786f15603b0d"
+  #ami = "ami-0cb4e786f15603b0d"
+  ami = lookup(var.ami, var.region)
   count = 1
   instance_type = "t2.micro"
   key_name = var.server_public_key
@@ -113,9 +116,10 @@ resource "aws_instance" "jenkins_node" {
          port = "8080"
          }  
   associate_public_ip_address       = false
-  vpc_security_group_ids = [aws_security_group.jenkins.id, var.vpn_sg]
+  vpc_security_group_ids = [aws_security_group.jenkins.id, var.vpn_sg, var.consul_security_group]
   user_data = file("modules/jenkins/scripts/jenkins-agent.tpl")
-  iam_instance_profile = aws_iam_instance_profile.jenkins-role.name
+  #iam_instance_profile = [aws_iam_instance_profile.jenkins-role.name,var.consul_iam_instance_profile]
+  iam_instance_profile =  var.consul_iam_instance_profile
 }
  
 resource "aws_alb_target_group" "jenkins-server" {

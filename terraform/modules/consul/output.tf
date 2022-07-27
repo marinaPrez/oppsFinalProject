@@ -1,6 +1,3 @@
-#output "consul_ssh"{
-#    value = var.pem_key_name
-#}
 
 output "consul_servers" {
   value = ["${aws_instance.consul_server.*.private_ip}"]
@@ -13,3 +10,12 @@ output "consul_servers" {
 output "consul-server-target-group-arn" {
     value = aws_alb_target_group.consul_server.arn
 }
+
+output "aws_iam_instance_profile" {
+    value = aws_iam_instance_profile.consul-join.name
+}
+
+output "consul_security_group_id" {
+    value = aws_security_group.opsschool_consul.id
+}
+
