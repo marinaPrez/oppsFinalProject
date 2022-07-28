@@ -18,22 +18,39 @@
 #     mode: a+x
  
 
-- name: Get filebeat config file
-  copy:
+# - name: Get filebeat config file
+#   copy:
+#     src: ./files/filebeat.yml
+#     dest: /etc/filebeat/filebeat.yml
+#   become: yes 
+#   notify: restart filebeat 
+
+- name: Add filebeat config file
+  template:
     src: ./files/filebeat.yml
     dest: /etc/filebeat/filebeat.yml
-  become: yes 
+  become: yes
+  notify: restart filebeat
+
+
+- name: Add Filebeat K8s config file
+  template:
+    src: ./files/filebeat_k8s.yml
+    dest: /home/ubuntu/filebeat_k8s.yml
+  when: tags['role'] == 'Jemkins Slave'
+  notify: restart filebeat 
 
 # - name: Copy Filebeat K8s config file
 #   copy:
-#     src: ./files/filebeat_k8s_config.yml
-#     dest: /home/ubuntu/filebeat_k8s_config.yml
-#   when: tags['Name'] == 'ansible-server'
+#     src: ./files/filebeat_k8s.yml
+#     dest: /home/ubuntu/filebeat_k8s.yml
+#   when: tags['role'] == 'Jemkins Slave'
+#   notify: restart filebeat   
 
-# - name: Deploy filebeat on K8s
-#   shell: kubectl apply -f /home/ubuntu/filebeat_k8s_config.yml
-#   ignore_errors: true
-#   when: tags['Name'] == 'ansible-server'
+- name: Deploy filebeat on K8s
+  shell: kubectl apply -f /home/ubuntu/filebeat_k8s.yml
+  ignore_errors: true
+  when: tags['role'] == 'Jemkins Slave'
 
 - name: Start filebeat service
   ansible.builtin.service:

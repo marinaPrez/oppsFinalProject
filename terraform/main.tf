@@ -50,6 +50,7 @@ module "jenkins" {
   region = var.region
   consul_iam_instance_profile = module.consul.aws_iam_instance_profile
   consul_security_group = module.consul.consul_security_group_id
+  consul_join_policy_arn= module.consul.consul_join_policy_arn
 }
 
 

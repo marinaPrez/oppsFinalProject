@@ -51,6 +51,11 @@ resource "aws_iam_role_policy_attachment" "jenkins-policy-attach" {
   policy_arn = aws_iam_policy.jenkins-policy.arn
 }
 
+resource "aws_iam_role_policy_attachment" "consul-policy-attach" {
+  role       = aws_iam_role.jenkins-role.name
+  policy_arn =  var.consul_join_policy_arn
+}
+
 
 resource "aws_iam_instance_profile" "jenkins-role" {
   name  = "jenkins-role-profile"
