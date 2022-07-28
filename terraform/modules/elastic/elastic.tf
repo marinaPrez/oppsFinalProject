@@ -84,7 +84,7 @@ resource "aws_security_group" "elastic_sg" {
     to_port         = 0
     protocol        = "-1"
     cidr_blocks     = ["0.0.0.0/0"]
-    description     = "Allow all outside security group"
+    description     = "Allow all for outside traffic"
   }
   tags = {
     "name" = "elastic_sg"
