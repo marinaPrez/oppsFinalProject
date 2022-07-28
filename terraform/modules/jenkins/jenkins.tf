@@ -76,31 +76,10 @@ resource "aws_instance" "jenkins_server" {
   associate_public_ip_address       = false
   vpc_security_group_ids = [aws_security_group.jenkins.id,  var.vpn_sg, var.consul_security_group]
   /* iam_instance_profile = [aws_iam_instance_profile.jenkins-role.name, var.consul_iam_instance_profile] */
-  iam_instance_profile =  var.consul_iam_instance_profile
+  iam_instance_profile =  aws_iam_instance_profile.jenkins-role.name
   user_data = file("modules/jenkins/scripts/jenkins_server.tpl") 
-
-
-  /* provisioner "remote-exec" {
-    inline = [
-      "sudo apt-get update -y",
-      "sudo apt install docker.io  -y",
-      "sudo systemctl start docker",
-      "sudo apt install openjdk-11-jre-headless -y",
-      "sudo systemctl enable docker",
-      "sudo usermod -aG docker ubuntu",
-      "mkdir -p ${local.jenkins_home}",
-      "sudo chown -R 1000:1000 ${local.jenkins_home}",
-      "chmod +x /home/ubuntu/consul-agent.sh",
-      "sudo /home/ubuntu/consul-agent.sh"
-    ]
-  }
-  provisioner "remote-exec" {
-    inline = [
-      "sudo docker run -d --restart=always -p 8080:8080 -p 50000:50000 -v ${local.jenkins_home_mount} -v ${local.docker_sock_mount} --env ${local.java_opts} jenkins/jenkins"
-    ]
-  } */
-
 }
+
 
 
 resource "aws_instance" "jenkins_node" {
@@ -118,8 +97,7 @@ resource "aws_instance" "jenkins_node" {
   associate_public_ip_address       = false
   vpc_security_group_ids = [aws_security_group.jenkins.id, var.vpn_sg, var.consul_security_group]
   user_data = file("modules/jenkins/scripts/jenkins-agent.tpl")
-  #iam_instance_profile = [aws_iam_instance_profile.jenkins-role.name,var.consul_iam_instance_profile]
-  iam_instance_profile =  var.consul_iam_instance_profile
+  iam_instance_profile =  aws_iam_instance_profile.jenkins-role.name
 }
  
 resource "aws_alb_target_group" "jenkins-server" {

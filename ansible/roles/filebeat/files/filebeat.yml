@@ -3,6 +3,7 @@ filebeat.inputs:
     enabled: true
     paths:
       - /var/log/auth.log
+     # - /var/log/cloud-init-output.log
 filebeat.modules:
   - module: system
     syslog:
@@ -22,5 +23,5 @@ processors:
       when.not.contains.tags: forwarded
   - add_cloud_metadata: ~
 output.elasticsearch:
-  hosts: ["10.0.6.119:9200"]
+  hosts: ["10.0.6.34:9200"]
   index: "filebeat-%{[agent.version]}-%{[agent.name]}-%{+yyyy.MM.dd}"
