@@ -112,8 +112,6 @@ map_roles = [
   ]
 }
 
-
-
 module "eks_auth" {
   source                   = "aidanmelen/eks-auth/aws"
   version                  = "1.0.0"
