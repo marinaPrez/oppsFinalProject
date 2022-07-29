@@ -13,7 +13,7 @@ resource "aws_instance" "elastic" {
   user_data = file("./modules/elastic/userdata.sh")
   tags = {
     Name = "Elastic Search Server"
-    role = "Elastic Search"
+    role = "elastic_search"
     port = "5601"
   }
 }

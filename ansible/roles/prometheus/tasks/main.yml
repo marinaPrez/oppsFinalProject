@@ -1,0 +1,70 @@
+---
+# tasks file for roles/prometheus
+
+# - name: Install HELM itself - Download
+#   ansible.builtin.get_url:
+#     url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
+#     dest: /home/ubuntu/get_helm.sh
+#     mode: "0644"
+
+- name: install helm
+  ansible.builtin.script: ./files/get_helm.sh
+  args:
+    creates: /home/ubuntu/install_helm.sh
+
+
+- name: creating environment - monitoring
+  shell: kubectl create ns monitoring
+  ignore_errors: true
+      
+- name: Add prometheus repo
+  shell: helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+  ignore_errors: true
+    
+- name: helm repo update
+  # become: false
+  shell: helm repo update
+  ignore_errors: true
+  
+    
+- name: Add prometheus configuration
+  copy:
+    src: ./files/prometheus_config.yaml
+    dest: /home/ubuntu/prometheus_config.yaml
+    mode: "0644"
+    # group: consul
+    # owner: consul
+  ignore_errors: true
+  
+    
+- name: Install Prometheus 
+  shell: helm install prometheus-community -n monitoring prometheus-community/kube-prometheus-stack -f /home/ubuntu/prometheus_config.yaml
+  ignore_errors: true
+  
+  
+- name: Add node_exporter_deamonset.yaml
+  copy:
+      src: ./files/node_exporter_deamonset.yaml
+      dest: /home/ubuntu/node_exporter_deamonset.yaml
+      mode: "0644"
+      # group: consul
+      # owner: consul
+  
+- name: Apply node_exporter service manifast file
+  shell: kubectl apply -f /home/ubuntu/node_exporter_deamonset.yaml
+  ignore_errors: true
+  
+- name: Add node_exporter service
+  copy:
+      src: ./files/node_exporter_service.yml
+      dest: /home/ubuntu/node_exporter_service.yml
+      mode: "0644"
+      # group: consul
+      # owner: consul
+  
+- name: Apply node_exporter service 
+  shell: kubectl apply -f  /home/ubuntu/node_exporter_service.yml
+  ignore_errors: true
+  
+
+  

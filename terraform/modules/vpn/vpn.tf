@@ -15,7 +15,7 @@ resource "aws_instance" "vpn" {
               EOF
   tags = {
     name = "Vpn Server"
-    role = "Vpn_Server"
+    role = "vpn_server"
     port = "1194"
   }
 }

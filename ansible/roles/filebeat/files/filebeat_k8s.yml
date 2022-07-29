@@ -52,7 +52,7 @@ data:
     setup.template.pattern: "filebeat-*"
 
     output.elasticsearch:
-      hosts: ["10.0.6.34:9200"]
+      hosts: ["elastic_search.service.consul:9200"]
       index: "filebeat-k8s-%{[agent.version]}-%{+yyyy.MM.dd}"
 ---
 apiVersion: apps/v1

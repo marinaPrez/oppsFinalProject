@@ -70,7 +70,7 @@ resource "aws_instance" "jenkins_server" {
   subnet_id                = element(var.subnet_id, count.index)
   tags =        {
                   Name = "Jenkins Server"
-                  role = "Jenkins Master"
+                  role = "jenkins_master"
                   port = "8080"
                 }
   associate_public_ip_address       = false
@@ -91,7 +91,7 @@ resource "aws_instance" "jenkins_node" {
   subnet_id                = element(var.subnet_id, count.index)
   tags = {
          Name = "Jenkins Node"
-         role = "Jemkins Slave"
+         role = "jenkins_slave"
          port = "8080"
          }  
   associate_public_ip_address       = false
