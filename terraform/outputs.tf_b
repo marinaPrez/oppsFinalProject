@@ -49,10 +49,10 @@ output "kibana_url" {
   value       = module.k8s.cluster_id
 } */
 
-output "k8s_cluster_endpoint" {
+/* output "k8s_cluster_endpoint" {
   description = "Endpoint for EKS control plane."
   value       = module.k8s.cluster_endpoint
-}
+} */
 
 /* output "k8s_oidc_provider_arn" {
   value = module.k8s.oidc_provider_arn

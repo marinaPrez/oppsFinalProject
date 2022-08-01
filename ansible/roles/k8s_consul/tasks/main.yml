@@ -16,7 +16,7 @@
   shell: helm repo update
   ignore_errors: true
 
-- name: Copy Helm config - consul
+- name:  Helm config - consul
   become: True
   template:
       src: consul_configuration.yaml.j2
@@ -43,7 +43,7 @@
   debug:
     msg: "consul dns cluster-ip is: {{consul_dns_cluster_ip}}"
   
-- name: Copy CoreDNS config
+- name:  CoreDNS config
   become: True
   template:
       src: core_dns.yaml.j2
@@ -57,7 +57,7 @@
 
 
 - name: Add cluster role manifast 
-  copy:
+  :
       src: ./files/cluster_role.yaml
       dest: /home/ubuntu/cluster_role.yaml
       mode: "0644"

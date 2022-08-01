@@ -1,0 +1,30 @@
+---
+# tasks file for roles/cicd
+
+# Master Configuration
+
+- name:  download jenkins-cli.jar
+  get_url:
+    url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.11.0-amd64.deb
+    dest: /home/ubuntu/jenkins-cli.jar
+  when: tags['role'] == 'jenkins_master'  
+
+- name: Install Jenkins plugins
+  shell: java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket install-plugin Git GitHub github-branch-source  pipeline-model-extensions build-monitor-plugin pipeline-build-step docker-workflow Swarm -deploy
+  ignore_errors: true
+  when: tags['role'] == 'jenkins_master'
+
+- name: Copy kandula jenkins job xml
+  copy:
+    src: ./files/kandulaDeployment.xml
+    dest: /home/ubuntu/kandulaDeployment.xml
+    # mode: "0644"
+    when: tags['role'] == 'jenkins_master'
+
+
+- name: Submit kandula Deployment job to Jenkins
+  shell: java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket create-job kandulaDeployment < kandulaDeployment.xml
+  ignore_errors: true
+  when: tags['role'] == 'jenkins_master'
+
+

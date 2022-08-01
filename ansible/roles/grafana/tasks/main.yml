@@ -17,7 +17,7 @@
   ignore_errors: true
   
 - name: Add prometheus configuration
-  copy:
+  :
     src: ./files/grafana_values.yaml
     dest: /home/ubuntu/grafana_values.yaml
     mode: "0644"
