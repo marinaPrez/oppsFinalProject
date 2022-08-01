@@ -5,7 +5,7 @@
 - name: install helm
   ansible.builtin.script: ./files/get_helm.sh
   args:
-    creates: /home/ubuntu/install_helm.sh
+    : /home/ubuntu/install_helm.sh
 
 
 - name: creating environment - monitoring
