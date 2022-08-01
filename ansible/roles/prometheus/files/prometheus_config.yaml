@@ -2628,10 +2628,9 @@ prometheus:
           replacement: "$1:9100"
         - source_labels: ['__meta_consul_node']
           target_label: 'instance'
-        - source_labels: [ '__meta_consul_service_port' ]
-          regex: "9100"
-          action: 'keep'
-          target_label: '__meta_consul_service_port'
+        - source_labels: [ '__meta_consul_node' ]
+          regex: "k8s-sync"
+          action: 'drop'
           
       - job_name: 'kandula_metrics'
         kubernetes_sd_configs:
@@ -2645,6 +2644,23 @@ prometheus:
             target_label: "kandula-service"
             regex: "kandula(.*)"
             action: keep
+       
+      - job_name: "consul_metrics"
+        consul_sd_configs:
+          - server: consul.ops.prezhevalsky.com:8500
+            scheme: http
+            datacenter: 'oopsschool'
+            services:
+              - "consul"
+        relabel_configs:
+          - source_labels: ["__address__"]
+            target_label: "__address__"
+            regex: "(.*):(.*)"
+            replacement: "$1:8500"
+        metrics_path: "/v1/agent/metrics"
+        params:
+          format: ["prometheus"]
+
 
     # - job_name: kube-etcd
     #   kubernetes_sd_configs:

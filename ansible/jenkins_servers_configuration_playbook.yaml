@@ -8,4 +8,5 @@
   roles:
   - consul 
   - filebeat
+  - node_exporter
   

@@ -1,11 +1,6 @@
 ---
 # tasks file for roles/prometheus
 
-# - name: Install HELM itself - Download
-#   ansible.builtin.get_url:
-#     url: https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
-#     dest: /home/ubuntu/get_helm.sh
-#     mode: "0644"
 
 - name: install helm
   ansible.builtin.script: ./files/get_helm.sh

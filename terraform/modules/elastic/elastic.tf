@@ -59,7 +59,13 @@ resource "aws_security_group" "elastic_sg" {
     description = "elasticsearch-rest-tcp"
   }
 
-
+   ingress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "node-exporter"
+  }
     ingress {
     from_port   = 5601
     to_port     = 5601
