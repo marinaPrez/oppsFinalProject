@@ -1,11 +1,12 @@
 ---
 - name: configuration for jenkins servers 
   hosts: 
-    _Jenkins_Master, _Jemkins_Slave
+    _jenkins_master, _jenkins_slave
   remote_user: ubuntu
   vars:
      ansible_ssh_private_key_file: "../terraform/keys/jenkins_key.pem"
   roles:
   - consul 
   - filebeat
+  - node_exporter
   

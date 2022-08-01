@@ -30,6 +30,16 @@ resource "aws_security_group" "jenkins" {
     ]
   }
 
+   ingress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "node-exporter"
+  }
+
+   
+
   ingress {
     from_port = 22
     to_port = 22
@@ -38,7 +48,14 @@ resource "aws_security_group" "jenkins" {
       "0.0.0.0/0"
     ]
   }
-
+  egress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "node-exporter"
+  }
+  
   egress {
     description = "Allow all outgoing traffic"
     from_port = 0
@@ -70,7 +87,7 @@ resource "aws_instance" "jenkins_server" {
   subnet_id                = element(var.subnet_id, count.index)
   tags =        {
                   Name = "Jenkins Server"
-                  role = "Jenkins Master"
+                  role = "jenkins_master"
                   port = "8080"
                 }
   associate_public_ip_address       = false
@@ -91,7 +108,7 @@ resource "aws_instance" "jenkins_node" {
   subnet_id                = element(var.subnet_id, count.index)
   tags = {
          Name = "Jenkins Node"
-         role = "Jemkins Slave"
+         role = "jenkins_slave"
          port = "8080"
          }  
   associate_public_ip_address       = false

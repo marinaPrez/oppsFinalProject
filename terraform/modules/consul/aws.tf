@@ -32,6 +32,62 @@ resource "aws_security_group" "opsschool_consul" {
     description = "Allow consul UI access from the world"
   }
 
+  ingress {
+    from_port   = 8600
+    to_port     = 8600
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8600
+    to_port     = 8600
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  
+  ingress {
+    from_port   = 8301
+    to_port     = 8301
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8301
+    to_port     = 8301
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+    ingress {
+    from_port   = 8302
+    to_port     = 8302
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8302
+    to_port     = 8302
+    protocol    = "udp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 8300
+    to_port     = 8300
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }  
+   ingress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "node-exporter"
+  }
+  
   egress {
     from_port       = 0
     to_port         = 0

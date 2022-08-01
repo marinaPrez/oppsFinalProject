@@ -13,7 +13,7 @@ resource "aws_instance" "elastic" {
   user_data = file("./modules/elastic/userdata.sh")
   tags = {
     Name = "Elastic Search Server"
-    role = "Elastic Search"
+    role = "elastic_search"
     port = "5601"
   }
 }
@@ -59,7 +59,13 @@ resource "aws_security_group" "elastic_sg" {
     description = "elasticsearch-rest-tcp"
   }
 
-
+   ingress {
+    from_port   = 9100
+    to_port     = 9100
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "node-exporter"
+  }
     ingress {
     from_port   = 5601
     to_port     = 5601

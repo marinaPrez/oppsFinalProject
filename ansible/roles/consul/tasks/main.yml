@@ -3,24 +3,50 @@
 
 - name: Transfer the script
   copy: src=files/consul_configuration.sh dest=/home/ubuntu mode=0777
-
+  when: tags['role'] is not regex('^consul_server*')
+  
 - name: Execute the script
   shell:   /home/ubuntu/consul_configuration.sh
   become: yes
+  when: tags['role'] is not regex('^consul_server*')
+  
 
 - name: Install Python pip
   apt: name={{ item }} update_cache=true state=present force_apt_get=yes
   with_items:
   - python3-pip
   become: true
+  when: tags['role'] is not regex('^consul_server*')
+  
 
 - name: Install python-consul package
   pip:
     name: python-consul
+  when: tags['role'] is not regex('^consul_server*')  
+   
+
+- name: "Add node name to config.json - consul client configuration"
+  become: yes
+  lineinfile:
+    path: /etc/consul.d/config.json
+    line:  "  \"node_name\":  \"{{tags.role}}\"," 
+    insertafter: '{'
+    state: present
+    backup: yes
+  notify: restart consul
+  
+# - name: Start consul service
+#   ansible.builtin.service:
+#     name: consul
+#     state: restarted
+#   become: yes 
+
 
 - name: Register service with the local consul agent
   community.general.consul:
     service_name: "{{tags.role}}"
     service_port: "{{tags.port}}"
     tags:
-    - production     
+    - production   
+  when: tags['role'] is not regex('^consul_server*')
+ 

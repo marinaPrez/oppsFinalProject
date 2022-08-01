@@ -54,7 +54,11 @@ tee /etc/consul.d/config.json > /dev/null <<EOF
   "server": true,
   "bootstrap_expect": 1,
   "ui": true,
-  "client_addr": "0.0.0.0"
+  "client_addr": "0.0.0.0",
+  "retry_interval": "15s",
+    "telemetry": {
+      "prometheus_retention_time": "10m"
+    }
 }
 EOF
 

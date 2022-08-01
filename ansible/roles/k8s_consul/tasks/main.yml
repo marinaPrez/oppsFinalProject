@@ -1,0 +1,69 @@
+---
+# tasks file for roles/k8s_consul
+  
+- name: creating environment - consul
+  shell: kubectl create ns consul
+  ignore_errors: true
+
+- name: Add Consul repo
+  become: false
+  shell: helm repo add hashicorp https://helm.releases.hashicorp.com
+  ignore_errors: true
+
+
+- name: helm repo update
+  become: false
+  shell: helm repo update
+  ignore_errors: true
+
+- name: Copy Helm config - consul
+  become: True
+  template:
+      src: consul_configuration.yaml.j2
+      dest: consul_configuration.yaml
+      mode: "0644"
+  ignore_errors: true
+
+  
+- name: Add Consul gossip encription key
+  become: false
+  shell: kubectl create secret generic consul-gossip-key --from-literal=key=uDBV4e+LbFW3019YKPxIrg== -n consul
+  ignore_errors: true
+
+- name: Deploy Consul chart using values-helm config file
+  become: false
+  shell: helm install consul hashicorp/consul --namespace consul -f consul_configuration.yaml
+  ignore_errors: true
+  
+- name: save consul-dns cluster-ip
+  shell: kubectl get svc -n consul | grep consul-consul | awk '{print $3}'
+  register: consul_dns_cluster_ip
+
+- name: echo consul_dns_cluster_ip
+  debug:
+    msg: "consul dns cluster-ip is: {{consul_dns_cluster_ip}}"
+  
+- name: Copy CoreDNS config
+  become: True
+  template:
+      src: core_dns.yaml.j2
+      dest: /home/ubuntu/core_dns.yaml
+      mode: "0644"
+  
+- name: Configure K8s CoreNDS to use Consul
+  shell: kubectl apply -f /home/ubuntu/core_dns.yaml
+  ignore_errors: true
+    
+
+
+- name: Add cluster role manifast 
+  copy:
+      src: ./files/cluster_role.yaml
+      dest: /home/ubuntu/cluster_role.yaml
+      mode: "0644"
+      # group: consul
+      # owner: consul
+  
+- name: deploy cluster role manifast file
+  shell: kubectl apply -f  /home/ubuntu/cluster_role.yaml
+  ignore_errors: true

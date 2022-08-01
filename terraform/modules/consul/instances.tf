@@ -14,41 +14,14 @@ resource "aws_instance" "consul_server" {
   vpc_security_group_ids 		= [aws_security_group.opsschool_consul.id, var.vpn_sg]
   user_data = file("modules/consul/scripts/consul-server.tpl")
 
-#  provisioner "file" {
-#    source      = "scripts/consul-server.sh"
-#    destination = "/home/ubuntu/consul-server.sh"
-#    connection {   
-#      host        = self.public_ip
-#      user        = "ubuntu"
-#      #private_key = "opsschool_consul.pem"
-#     # private_key = file("/Users/marinapr/opsScool/finalProject/terraform/oppschool_key.pem")       
-#      private_key = var.servers_private_key
-#     }   
-#  }
-
-
-#   provisioner "remote-exec" {
-#    inline = [
-#      "chmod +x /home/ubuntu/consul-server.sh",
-#      "sudo /home/ubuntu/consul-server.sh",
-#        ]
-#    connection {
-#      host        = self.public_ip
-#      user        = "ubuntu"
-#      private_key = var.servers_private_key
-#   }
-#  }
-
-
   tags = {
     Name = "Consul-Server_${count.index}"
     consul_server = "true"
-    role = "consul server"
+    role = "consul_server_${count.index}"
     environment = "production"
   }
 
 }
-
 
 #  create one consul agent
 ############################

@@ -13,6 +13,7 @@ data:
       paths:
         - /var/log/containers/*.log
         - /kandula/*.log
+        - /kandula/app/*.log
       processors:
         - add_kubernetes_metadata:
             host: ${NODE_NAME}
@@ -49,10 +50,10 @@ data:
       - add_host_metadata:
 
     setup.template.name: "filebeat"
-    setup.template.pattern: "filebeat-*"
+    setup.template.pattern: "filebeat-k8s-*"
 
     output.elasticsearch:
-      hosts: ["10.0.6.34:9200"]
+      hosts: ["elastic_search.service.consul:9200"]
       index: "filebeat-k8s-%{[agent.version]}-%{+yyyy.MM.dd}"
 ---
 apiVersion: apps/v1

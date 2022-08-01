@@ -1,0 +1,12 @@
+---
+- name: K8S configuration  
+  hosts: 
+    _jenkins_slave
+  remote_user: ubuntu
+  vars:
+     ansible_ssh_private_key_file: "../terraform/keys/jenkins_key.pem"
+  roles:
+  - prometheus
+  - k8s_consul
+  - grafana
+  

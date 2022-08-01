@@ -1,0 +1,32 @@
+---
+# tasks file for roles/grafana
+
+
+- name: creating environment - grafana
+  shell: kubectl create ns grafana
+  ignore_errors: true
+
+- name: Add grafana repo
+  become: false
+  shell: helm repo add grafana https://grafana.github.io/helm-charts
+  ignore_errors: true
+
+- name: helm repo update
+  become: false
+  shell: helm repo update
+  ignore_errors: true
+  
+- name: Add prometheus configuration
+  copy:
+    src: ./files/grafana_values.yaml
+    dest: /home/ubuntu/grafana_values.yaml
+    mode: "0644"
+ 
+
+  ignore_errors: true
+- name: GRAFANA installation
+  become: false
+  shell: helm install grafana grafana/grafana -n grafana -f grafana_values.yaml
+  ignore_errors: true
+  
+
