@@ -1,4 +1,4 @@
-#OpsScool final Project
+# OpsScool final Project
 
 This is the Infrastracture as a code Repository of the deployment of Kandula application.
 
