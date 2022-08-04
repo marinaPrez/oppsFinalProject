@@ -47,7 +47,6 @@ resource "aws_instance" "consul_agent" {
 
 }
 
-
 resource "aws_alb_target_group" "consul_server" {
   name     = "consul-server-target-group"
   port     = 8500

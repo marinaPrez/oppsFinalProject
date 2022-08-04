@@ -31,6 +31,7 @@
     path: /etc/consul.d/config.json
     line:  "  \"node_name\":  \"{{tags.role}}\"," 
     insertafter: '{'
+    firstmatch: yes
     state: present
     backup: yes
   notify: restart consul

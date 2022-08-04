@@ -2,10 +2,10 @@
 # tasks file for roles/prometheus
 
 
-- name: install helm
+- name: installing helm
   ansible.builtin.script: ./files/get_helm.sh
   args:
-    : /home/ubuntu/install_helm.sh
+    creates  : /home/ubuntu/install_helm.sh
 
 
 - name: creating environment - monitoring

@@ -17,13 +17,12 @@
   ignore_errors: true
   
 - name: Add prometheus configuration
-  :
+  copy:
     src: ./files/grafana_values.yaml
     dest: /home/ubuntu/grafana_values.yaml
     mode: "0644"
- 
-
   ignore_errors: true
+  
 - name: GRAFANA installation
   become: false
   shell: helm install grafana grafana/grafana -n grafana -f grafana_values.yaml

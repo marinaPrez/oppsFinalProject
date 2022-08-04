@@ -4,7 +4,8 @@
 # node_exporter is set up as a systemd service, which requiers a daemon-reload.
 
 
-node_exporter_ver="0.18.0"
+# node_exporter_ver="0.18.0"
+node_exporter_ver="1.3.0"
 
 wget \
   https://github.com/prometheus/node_exporter/releases/download/v$node_exporter_ver/node_exporter-$node_exporter_ver.linux-amd64.tar.gz \

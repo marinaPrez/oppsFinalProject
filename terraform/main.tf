@@ -33,8 +33,10 @@ module "consul" {
 
 module "networking" {
   source    = "./modules/network"
+  region = var.region
   consul_target_group_arn = module.consul.consul-server-target-group-arn
   jenkins_target_group_arn = module.jenkins.jenkins-server-target-group-arn
+  elastic_target_group_arn = module.elastic.elastic_target_group_arn
  } 
 
 
@@ -57,6 +59,7 @@ module "jenkins" {
 module "k8s" {
   source    = "./modules/k8s"
   vpc_id = module.networking.vpcid
+  region = var.region
   subnet_ids = module.networking.private-subnet-id
   role_arn  = module.jenkins.jenkins_role_arn
   role_name = module.jenkins.jenkins_role_name

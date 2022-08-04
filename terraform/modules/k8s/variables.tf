@@ -1,7 +1,10 @@
-variable "aws_region" {
+/* variable "aws_region" {
  default = "us-west-2"
  description = "aws region"
-}
+} */
+
+variable "region" {}
+
 
 variable "vpc_id" {}
 variable "subnet_ids" {}

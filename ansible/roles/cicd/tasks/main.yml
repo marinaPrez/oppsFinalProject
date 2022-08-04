@@ -3,28 +3,74 @@
 
 # Master Configuration
 
-- name:  download jenkins-cli.jar
-  get_url:
-    url: https://artifacts.elastic.co/downloads/beats/filebeat/filebeat-oss-7.11.0-amd64.deb
-    dest: /home/ubuntu/jenkins-cli.jar
+# - name: Get jenkins-cli.jar
+#   ansible.builtin.shell: curl http://localhost:8080/jnlpJars/jenkins-cli.jar -o /home/ubuntu/jenkins-cli.jar
+#   when: tags['role'] == 'jenkins_master'  
+  
+
+
+  
+
+- name: Ansible register variable basic example
+  shell: hostname -I | awk '{print $1}'
   when: tags['role'] == 'jenkins_master'  
+  register: Jenkins_Master_IP
 
-- name: Install Jenkins plugins
-  shell: java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket install-plugin Git GitHub github-branch-source  pipeline-model-extensions build-monitor-plugin pipeline-build-step docker-workflow Swarm -deploy
+- debug: var=Jenkins_Master_IP.stdout
+
+# - name: echo jenkins ip
+#   debug:
+#   when: tags['role'] == 'jenkins_master' 
+#     msg: "jenkins ip is : {{Jenkins_Master_IP.stdout}}"
+
+# - name: Install Jenkins plugins
+#   shell: java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket install-plugin Git GitHub github-branch-source  pipeline-model-extensions build-monitor-plugin pipeline-build-step docker-workflow Swarm -deploy
+#   ignore_errors: true
+#   when: tags['role'] == 'jenkins_master'
+
+ 
+# - name: Copy kandula jenkins job xml
+#   copy: src=files/kandulaDeployment.xml dest=/home/ubuntu 
+#   when: tags['role'] == 'jenkins_master'
+
+# - name: Submit kandula Deployment job to Jenkins
+#   shell: java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket create-job kandulaDeployment < kandulaDeployment.xml
+#   when: tags['role'] == 'jenkins_master'
+#   ignore_errors: true
+
+
+
+# Node Configuration
+
+
+- name: download client from server node
+  ansible.builtin.shell: curl  http://10.0.6.131:8080/swarm/swarm-client.jar -o /home/ubuntu/jenkins-cli.jar
+  when: tags['role'] == 'jenkins_slave'  
+
+
+
+- name: install kubectl
+  shell: sudo apt install -y docker.io; sudo usermod -aG docker ubuntu; sudo snap install kubectl --classic; mkdir /home/ubuntu/.kube/ ; aws eks --region=us-east-2 update-kubeconfig --name mid-project-eks-cluster
   ignore_errors: true
-  when: tags['role'] == 'jenkins_master'
+  when: tags['role'] == 'jenkins_slave'
 
-- name: Copy kandula jenkins job xml
-  copy:
-    src: ./files/kandulaDeployment.xml
-    dest: /home/ubuntu/kandulaDeployment.xml
-    # mode: "0644"
-    when: tags['role'] == 'jenkins_master'
+# - name:  download aws cli
+#   get_url:
+#     url:  https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+#     dest: /home/ubuntu/awscliv2.zip
+#   when: tags['role'] == 'jenkins_slave'  
+# - name: install aws dependancies 
+#   shell: sudo apt install -y openjdk-11-jre-headless; sudo apt install unzip; unzip -o awscliv2.zip
+#   ignore_errors: true
+#   when: tags['role'] == 'jenkins_slave'
 
+# - name: install aws 
+#   shell: sudo ./aws/install
+#   ignore_errors: true
+#   when: tags['role'] == 'jenkins_slave'
 
-- name: Submit kandula Deployment job to Jenkins
-  shell: java -jar jenkins-cli.jar -s http://localhost:8080/ -webSocket create-job kandulaDeployment < kandulaDeployment.xml
-  ignore_errors: true
-  when: tags['role'] == 'jenkins_master'
-
+# - name: connect node to Jenkins Server
+#   shell: nohup java -jar swarm-client.jar -url http://$Jenkins_server:8080 -webSocket -name node1 -disableClientsUniqueId -retry 1 &
+#   ignore_errors: true
+#   when: tags['role'] == 'jenkins_slave' 
 

@@ -4,4 +4,4 @@
 - name: Install node exporter
   ansible.builtin.script: ./files/install_node_exporter.sh
   args:
-    : /home/ubuntu/install_node_exporter.sh
+    creates: /home/ubuntu/install_node_exporter.sh

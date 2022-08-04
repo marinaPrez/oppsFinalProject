@@ -1,7 +1,7 @@
 #!/bin/bash
 
-Jenkins_server="10.0.6.147"
-jenkins_agent="10.0.6.55"
+Jenkins_server="10.0.6.131"
+jenkins_agent="10.0.6.107"
 jenkins_key="terraform/keys/jenkins_key.pem"
 
 
@@ -30,12 +30,16 @@ ssh -i $jenkins_key -o StrictHostKeyChecking=no ubuntu@$jenkins_agent "curl http
 echo "install kubectl"
 ssh -i $jenkins_key  ubuntu@$jenkins_agent "sudo apt install -y docker.io; sudo usermod -aG docker ubuntu; sudo snap install kubectl --classic; mkdir /home/ubuntu/.kube/"
 # scp -i $jenkins_key  /Users/marinapr/.kube/config ubuntu@$jenkins_agent:~/.kube/config
-ssh -i $jenkins_key  ubuntu@$jenkins_agent "aws eks --region=us-west-2 update-kubeconfig --name mid-project-eks-cluster"
+ssh -i $jenkins_key  ubuntu@$jenkins_agent "aws eks --region=us-east-2 update-kubeconfig --name mid-project-eks-cluster"
 
 echo "install aws cli"
 ssh -i $jenkins_key  ubuntu@$jenkins_agent "curl 'https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip' -o awscliv2.zip "
 ssh -i $jenkins_key  ubuntu@$jenkins_agent "sudo apt install -y openjdk-11-jre-headless; sudo apt install unzip; unzip -o awscliv2.zip"
 ssh -i $jenkins_key  ubuntu@$jenkins_agent "sudo ./aws/install"
+kubectl apply -f ~/mysecret.yaml;
+
+echo "install trivy"
+ssh -i $jenkins_key  ubuntu@$jenkins_agent "curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sudo sh -s -- -b /usr/local/bin v0.18.3"
 
 
 echo "connect node to Jenkins Server"

@@ -1,6 +1,6 @@
 variable "region" {
   description = "AWS region for VMs"
-  default = "us-west-2"
+  /* default = "us-west-2" */
 }
 
 variable "public_subnet" {
@@ -21,3 +21,5 @@ variable "ingressrules" {
 variable "consul_target_group_arn" {}
 
 variable "jenkins_target_group_arn" {}
+
+variable "elastic_target_group_arn" {}

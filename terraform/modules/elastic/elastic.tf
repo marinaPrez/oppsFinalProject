@@ -98,3 +98,18 @@ resource "aws_security_group" "elastic_sg" {
 }
 
 
+ 
+resource "aws_alb_target_group" "elastic-server" {
+  name     = "elastic-server-target-group"
+  port     = 5601
+  protocol = "HTTP"
+  vpc_id   = var.vpc_id
+}
+
+resource "aws_alb_target_group_attachment" "elastic-server" {
+  count = 1
+  target_group_arn = aws_alb_target_group.elastic-server.arn
+  target_id        = aws_instance.elastic.*.id[count.index]
+  port             = 5601
+}
+

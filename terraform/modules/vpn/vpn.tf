@@ -3,7 +3,8 @@
 ##################
 
 resource "aws_instance" "vpn" {
-  ami                   = "ami-0d10bccf2f1a6d60b"
+  # ami                   = "ami-0d10bccf2f1a6d60b"  -- us-west-2
+  ami                   = "ami-04406fdec0f245050"
   /* count                 = 1 */
   instance_type         = "t2.micro"
   key_name              = var.server_public_key

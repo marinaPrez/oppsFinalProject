@@ -1,13 +1,13 @@
 # network variables:
 ####################
 variable "availability_zone" {
-   default = ["us-west-2a", "us-west-2b"] 
+   default = ["us-east-2a", "us-east-2b"] 
   }
  
 
 variable "region" {
   description = "AWS region for VMs"
-  default = "us-west-2"
+  default = "us-east-2"
 }
 
 variable "public_subnet" {
