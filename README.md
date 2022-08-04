@@ -1,5 +1,10 @@
 # final Project
 
+This is the Infrastracture as a code Repository of the deployment of Kandula application.
+
+Provisioning of the Infrastructure is done with Terraform. 
+
+Configuration Manafment is implemented with Ansible.
 
 
 
